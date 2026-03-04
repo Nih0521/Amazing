@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Amazing with Nici</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===========================
+     CSS VARIABLES & RESET
+  =========================== */
+  :root {
+    --primary: #F564A9;
+    --primary-dark: #E84B91;
+    --primary-light: #FFC1E3;
+    --secondary: #CDB4FF;
+    --accent: #FF8DC7;
+    --light-bg: #FFF0F7;
+    --very-light-bg: #FFD6EC;
+    --dark-text: #7A3E6D;
+    --white: #FFFFFF;
+    --shadow: 0 8px 24px rgba(245, 100, 169, 0.15);
+    --shadow-sm: 0 4px 12px rgba(245, 100, 169, 0.1);
+    --blush: #FFC1E3;
+    --blush-light: #FFD6EC;
+    --pale: #FFF0F7;
+    --lavender: #CDB4FF;
+    --text: #7A3E6D;
+    --text-soft: #b07a9e;
+    --shadow-lg: 0 8px 40px rgba(245, 100, 169, 0.22);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, var(--light-bg) 0%, var(--very-light-bg) 100%);
+    color: var(--dark-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(245,100,169,0.10) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -80px; left: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(205,180,255,0.22) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ===========================
+     LOGIN SCREEN
+  =========================== */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, var(--light-bg) 0%, var(--very-light-bg) 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 2000; gap: 28px;
+  }
+  .login-overlay.hidden { display: none; }
+  .login-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; color: var(--text); text-align: center; line-height: 1.2;
+  }
+  .login-logo span { font-style: italic; color: var(--primary); }
+  .login-sub { font-size: 14px; color: var(--text-soft); margin-top: -16px; }
+  .btn-login {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; border: none; border-radius: 14px;
+    padding: 16px 32px; font-size: 16px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer; box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; gap: 10px; transition: opacity 0.2s;
+  }
+  .btn-login:hover { opacity: 0.9; }
+
+  /* ===========================
+     SCREENS
+  =========================== */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===========================
+     HEADER
+  =========================== */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    padding: 24px 20px 32px;
+    position: relative; overflow: hidden;
+  }
+  .header-inner {
+    max-width: 480px; margin: 0 auto;
+    position: relative; z-index: 1;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .app-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; color: white; letter-spacing: -0.5px; line-height: 1.2;
+  }
+  .app-title span { font-style: italic; opacity: 0.85; }
+  .app-subtitle { color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 2px; font-weight: 300; }
+  .header-right { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .btn-header {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    border-radius: 10px; padding: 8px 12px; cursor: pointer;
+    font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    transition: background 0.2s; white-space: nowrap; position: relative;
+  }
+  .btn-header:hover { background: rgba(255,255,255,0.3); }
+  .notif-badge {
+    position: absolute; top: -4px; right: -4px;
+    width: 18px; height: 18px; background: #FF4757;
+    border-radius: 50%; font-size: 10px; font-weight: 700; color: white;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notif-badge.hidden { display: none; }
+
+  /* ===========================
+     STATS CARD
+  =========================== */
+  .stats-card {
+    max-width: 480px; margin: -18px auto 0;
+    padding: 0 16px; position: relative; z-index: 10;
+  }
+  .stats-inner {
+    background: white; border-radius: var(--radius);
+    padding: 16px 20px; box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .stats-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .stats-label { font-size: 12px; color: var(--text-soft); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+  .stats-value { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--primary); line-height: 1; }
+  .stats-sub { font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+
+  /* ===========================
+     CALENDAR
+  =========================== */
+  .calendar-wrap {
+    max-width: 480px; margin: 20px auto 0;
+    padding: 0 16px; position: relative; z-index: 5;
+  }
+  .calendar-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .cal-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px; border-bottom: 1px solid var(--blush-light);
+  }
+  .cal-month { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); }
+  .cal-nav-btn {
+    width: 36px; height: 36px; border: none;
+    background: var(--pale); color: var(--primary);
+    border-radius: 10px; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .cal-nav-btn:hover { background: var(--primary); color: white; }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); padding: 8px 12px 4px; }
+  .cal-weekday { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-soft); letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 0; }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); padding: 4px 12px 16px; gap: 2px; }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; cursor: pointer;
+    font-size: 14px; font-weight: 500;
+    position: relative; transition: all 0.2s; color: var(--text);
+    flex-direction: column; gap: 1px;
+  }
+  .cal-day:hover:not(.empty) { background: var(--blush-light); color: var(--primary); }
+  .cal-day.empty { cursor: default; }
+  .cal-day.today {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; font-weight: 600;
+    box-shadow: 0 3px 12px rgba(245,100,169,0.4);
+  }
+  .cal-day.completed {
+    background: linear-gradient(135deg, var(--secondary) 0%, #B896E8 100%);
+    color: white;
+  }
+  .cal-day.completed::after {
+    content: '✓';
+    position: absolute; bottom: -3px; right: -3px;
+    width: 18px; height: 18px;
+    background: var(--accent); border-radius: 50%;
+    font-size: 11px; font-weight: 900; color: white;
+    line-height: 18px; text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  }
+  .cal-day.has-workout:not(.completed)::after {
+    content: '•';
+    position: absolute; bottom: 2px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px; color: var(--primary); line-height: 1;
+  }
+  .cal-day.has-workout.today::after { color: white; }
+  .cal-day.future { color: var(--blush); cursor: pointer; }
+  .cal-day.future:hover { background: var(--blush-light); color: var(--primary); }
+  .day-type-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .day-type-dot.cardio { background: #FF6B6B; }
+  .day-type-dot.silova { background: #9B72E8; }
+  .day-type-dot.lezeni { background: #4ECDC4; }
+  .day-type-dot.restday { background: #95A5A6; }
+  .cal-day.today .day-type-dot,
+  .cal-day.completed .day-type-dot { background: rgba(255,255,255,0.7); }
+
+  /* ===========================
+     DAY DETAIL
+  =========================== */
+  .day-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    padding: 20px 16px 28px; position: relative;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    border-radius: 10px; padding: 8px 14px; cursor: pointer;
+    font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    display: flex; align-items: center; gap: 6px; transition: background 0.2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.3); }
+  .day-date { font-family: 'Playfair Display', serif; font-size: 26px; color: white; margin-top: 12px; }
+  .day-date-sub { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+  .day-actions { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-complete {
+    background: white; color: var(--primary-dark); border: none;
+    border-radius: 12px; padding: 10px 18px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-complete:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .btn-complete.done {
+    background: rgba(255,255,255,0.25); color: white;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+  .btn-complete:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .day-type-badge {
+    border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: white;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .day-type-badge.cardio { background: rgba(255,107,107,0.8); }
+  .day-type-badge.silova { background: rgba(155,114,232,0.8); }
+  .day-type-badge.lezeni { background: rgba(78,205,196,0.8); }
+  .day-type-badge.restday { background: rgba(149,165,166,0.8); }
+
+  .exercises-wrap {
+    max-width: 480px; margin: -14px auto 0;
+    padding: 0 16px 100px; position: relative; z-index: 5;
+  }
+  .empty-state { text-align: center; padding: 48px 24px; }
+  .empty-state-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #CDB4FF, #F564A9);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 300; color: white;
+    margin: 0 auto 16px;
+  }
+  .empty-state-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+  .empty-state-sub { font-size: 13px; color: var(--text-soft); }
+
+  .exercise-card {
+    background: white; border-radius: var(--radius);
+    padding: 16px; margin-bottom: 12px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .exercise-card::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    border-radius: 2px 0 0 2px;
+  }
+  .exercise-name {
+    font-size: 16px; font-weight: 600; color: var(--text);
+    margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .exercise-delete {
+    background: none; border: none; color: #ddd;
+    cursor: pointer; font-size: 16px; padding: 0; transition: color 0.2s;
+  }
+  .exercise-delete:hover { color: var(--primary); }
+  .exercise-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .pill {
+    background: var(--blush-light); color: var(--primary-dark);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .exercise-note {
+    font-size: 12px; color: var(--text-soft); font-style: italic;
+    margin-bottom: 10px; padding: 8px 12px;
+    background: rgba(205,180,255,0.18); border-radius: 8px;
+  }
+  .feedback-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 6px; }
+  .feedback-input {
+    width: 100%; border: 1.5px solid var(--blush);
+    border-radius: 10px; padding: 8px 12px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    color: var(--text); background: var(--pale);
+    resize: none; transition: border-color 0.2s; outline: none;
+  }
+  .feedback-input:focus { border-color: var(--primary); }
+  .feedback-input::placeholder { color: #cbb5c4; }
+
+  /* Admin reply block */
+  .admin-reply {
+    margin-top: 10px; padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(205,180,255,0.2), rgba(245,100,169,0.08));
+    border-radius: 10px; border-left: 3px solid var(--secondary);
+  }
+  .admin-reply-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--secondary); margin-bottom: 4px; }
+  .admin-reply-text { font-size: 13px; color: var(--text); }
+
+  /* Admin reply input */
+  .admin-reply-input {
+    width: 100%; border: 1.5px solid var(--blush);
+    border-radius: 10px; padding: 8px 12px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    color: var(--text); background: var(--pale);
+    resize: none; outline: none; transition: border-color 0.2s;
+    margin-top: 8px;
+  }
+  .admin-reply-input:focus { border-color: var(--secondary); }
+  .btn-reply-save {
+    margin-top: 6px; background: linear-gradient(135deg, var(--secondary), #9B72E8);
+    color: white; border: none; border-radius: 8px;
+    padding: 7px 14px; font-size: 12px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-reply-save:hover { opacity: 0.9; }
+
+  /* ===========================
+     FAB
+  =========================== */
+  .fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: none; border-radius: 50%;
+    color: white; font-size: 28px; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(245,100,169,0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .fab:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(245,100,169,0.55); }
+  .fab:active { transform: scale(0.95); }
+  .fab.hidden { display: none; }
+
+  /* ===========================
+     MODAL (Bottom Sheet)
+  =========================== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(122, 62, 109, 0.35);
+    backdrop-filter: blur(4px);
+    z-index: 200; display: none;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 28px 28px 0 0;
+    padding: 24px 20px 40px; width: 100%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-handle { width: 40px; height: 4px; background: var(--blush-light); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 6px; }
+  .form-input {
+    width: 100%; border: 1.5px solid var(--blush-light);
+    border-radius: 12px; padding: 12px 14px;
+    font-size: 15px; font-family: 'DM Sans', sans-serif;
+    color: var(--text); background: var(--pale); outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--primary); background: white; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .input-unit-wrap { position: relative; }
+  .input-unit-wrap .form-input { padding-right: 48px; }
+  .input-unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 600; color: var(--primary); }
+  .btn-save {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; border: none; border-radius: 14px;
+    padding: 16px; font-size: 16px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 4px 16px rgba(245,100,169,0.35);
+  }
+  .btn-save:hover { opacity: 0.92; transform: translateY(-1px); }
+
+  /* ===========================
+     SCHEDULE MODAL (Full-screen-ish)
+  =========================== */
+  .schedule-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(122, 62, 109, 0.45);
+    backdrop-filter: blur(6px);
+    z-index: 300; display: none;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .schedule-modal-overlay.open { display: flex; }
+  .schedule-modal {
+    background: white; border-radius: 28px;
+    padding: 28px 20px 32px; width: 100%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto;
+    animation: popIn 0.3s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .schedule-close {
+    float: right; background: var(--pale); border: none;
+    color: var(--text-soft); border-radius: 10px;
+    padding: 6px 12px; cursor: pointer; font-size: 18px; line-height: 1;
+  }
+  .schedule-header { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 6px; }
+  .schedule-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+  .schedule-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .schedule-month { font-weight: 600; font-size: 16px; color: var(--text); }
+  .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px; }
+  .schedule-day-name { text-align: center; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; padding: 4px 0; }
+  .schedule-day {
+    aspect-ratio: 1; border-radius: 10px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 500; color: var(--text);
+    border: 1.5px solid transparent; transition: all 0.15s; background: var(--pale);
+  }
+  .schedule-day:hover:not(.empty) { border-color: var(--primary); }
+  .schedule-day.empty { background: transparent; cursor: default; }
+  .schedule-day.past { opacity: 0.5; }
+  .schedule-day .day-num { font-size: 12px; font-weight: 600; }
+  .schedule-day .type-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px; }
+  .schedule-day.cardio { background: rgba(255,107,107,0.15); border-color: rgba(255,107,107,0.4); }
+  .schedule-day.cardio .type-label { color: #FF6B6B; }
+  .schedule-day.silova { background: rgba(155,114,232,0.15); border-color: rgba(155,114,232,0.4); }
+  .schedule-day.silova .type-label { color: #9B72E8; }
+  .schedule-day.lezeni { background: rgba(78,205,196,0.15); border-color: rgba(78,205,196,0.4); }
+  .schedule-day.lezeni .type-label { color: #4ECDC4; }
+  .schedule-day.restday { background: rgba(149,165,166,0.15); border-color: rgba(149,165,166,0.4); }
+  .schedule-day.restday .type-label { color: #95A5A6; }
+  .schedule-type-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .type-option {
+    flex: 1; min-width: 60px; padding: 10px 8px; border-radius: 12px;
+    border: 2px solid transparent; cursor: pointer;
+    text-align: center; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.3px; transition: all 0.15s;
+    background: var(--pale); color: var(--text-soft);
+  }
+  .type-option.selected { color: white; }
+  .type-option[data-type="cardio"].selected { background: #FF6B6B; border-color: #FF6B6B; }
+  .type-option[data-type="silova"].selected { background: #9B72E8; border-color: #9B72E8; }
+  .type-option[data-type="lezeni"].selected { background: #4ECDC4; border-color: #4ECDC4; }
+  .type-option[data-type="restday"].selected { background: #95A5A6; border-color: #95A5A6; }
+  .type-option:not(.selected):hover { border-color: var(--primary); }
+  .schedule-selected-info { font-size: 13px; color: var(--text-soft); margin-bottom: 16px; min-height: 20px; }
+  .btn-save-schedule {
+    width: 100%; background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; border: none; border-radius: 14px;
+    padding: 14px; font-size: 15px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(245,100,169,0.35); transition: opacity 0.2s;
+  }
+  .btn-save-schedule:hover { opacity: 0.92; }
+
+  /* ===========================
+     ADMIN DASHBOARD
+  =========================== */
+  .admin-header {
+    background: linear-gradient(135deg, #9B72E8 0%, var(--secondary) 100%);
+    padding: 24px 20px 32px;
+  }
+  .admin-header .app-title { font-size: 22px; }
+  .admin-role-badge {
+    display: inline-block; background: rgba(255,255,255,0.25);
+    color: white; border-radius: 20px; padding: 3px 12px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  .content-wrap {
+    max-width: 480px; margin: 0 auto;
+    padding: 0 16px 100px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text);
+    margin: 24px 0 12px;
+  }
+
+  /* User list */
+  .user-card {
+    background: white; border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 10px;
+    box-shadow: var(--shadow); cursor: pointer;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.2s; border: 2px solid transparent;
+  }
+  .user-card:hover { border-color: var(--secondary); transform: translateY(-1px); }
+  .user-avatar {
+    width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: white;
+  }
+  .user-name { font-weight: 600; font-size: 15px; color: var(--text); }
+  .user-email { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+  .user-meta { font-size: 11px; color: var(--primary); margin-top: 2px; font-weight: 500; }
+  .user-card-right { margin-left: auto; color: var(--text-soft); font-size: 18px; }
+
+  /* Admin user profile view */
+  .profile-header {
+    background: linear-gradient(135deg, #9B72E8 0%, var(--secondary) 100%);
+    padding: 20px 16px 28px;
+  }
+  .profile-back-btn {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    border-radius: 10px; padding: 8px 14px; cursor: pointer;
+    font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    display: flex; align-items: center; gap: 6px; transition: background 0.2s;
+  }
+  .profile-back-btn:hover { background: rgba(255,255,255,0.3); }
+  .profile-name { font-family: 'Playfair Display', serif; font-size: 24px; color: white; margin-top: 12px; }
+  .profile-email { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+  .tab-bar {
+    display: flex; gap: 0; background: white;
+    border-bottom: 1px solid var(--blush-light);
+    max-width: 480px; margin: 0 auto;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .tab-btn {
+    flex: 1; padding: 12px 8px; border: none; background: none;
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-soft); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===========================
+     NOTIFICATIONS PANEL
+  =========================== */
+  .notif-panel-overlay {
+    position: fixed; inset: 0;
+    background: rgba(122, 62, 109, 0.35);
+    backdrop-filter: blur(4px);
+    z-index: 400; display: none;
+    align-items: flex-start; justify-content: center; padding-top: 60px;
+  }
+  .notif-panel-overlay.open { display: flex; }
+  .notif-panel {
+    background: white; border-radius: var(--radius);
+    padding: 20px; width: 100%; max-width: 480px; margin: 0 16px;
+    max-height: 80vh; overflow-y: auto;
+    animation: popIn 0.25s ease;
+  }
+  .notif-panel-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .notif-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-soft); }
+  .notif-item {
+    background: var(--pale); border-radius: 12px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--primary);
+    font-size: 13px; color: var(--text); line-height: 1.5;
+    overflow: hidden;
+  }
+  .notif-item.simple { padding: 12px 14px; }
+  .notif-item.unread { border-left-color: var(--secondary); background: rgba(205,180,255,0.10); }
+  .notif-item .notif-date { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+  .notif-empty { text-align: center; padding: 32px; color: var(--text-soft); font-size: 14px; }
+  .notif-rich-header { padding: 12px 14px 10px; border-bottom: 1px solid var(--blush-light); }
+  .notif-rich-header strong { font-size: 14px; display: block; margin-bottom: 3px; }
+  .notif-rich-feedback { padding: 10px 14px 8px; background: rgba(255,240,247,0.8); border-bottom: 1px solid var(--blush-light); }
+  .notif-rich-feedback .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 4px; }
+  .notif-rich-feedback .value { font-size: 13px; color: var(--text); font-style: italic; }
+  .notif-rich-reply { padding: 10px 14px 12px; background: rgba(205,180,255,0.15); }
+  .notif-rich-reply .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #9B72E8; margin-bottom: 4px; }
+  .notif-rich-reply .value { font-size: 13px; color: var(--text); font-weight: 500; }
+  .notif-rich-footer { padding: 6px 14px 10px; }
+
+  /* ===========================
+     SCHEDULE VIEW (Admin read-only)
+  =========================== */
+  .schedule-view-card {
+    background: white; border-radius: var(--radius);
+    padding: 16px; margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .schedule-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-soft); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ===========================
+     ADMIN STATS CARD (purple)
+  =========================== */
+  .admin-stats-card {
+    max-width: 480px; margin: -18px auto 0;
+    padding: 0 16px; position: relative; z-index: 10;
+  }
+  .admin-stats-inner {
+    background: white; border-radius: var(--radius);
+    padding: 16px 20px; box-shadow: 0 8px 40px rgba(155,114,232,0.22);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .admin-stats-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--secondary), #9B72E8);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+
+  /* ===========================
+     TOAST
+  =========================== */
+  .toast {
+    position: fixed; top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--text); color: white; border-radius: 12px;
+    padding: 12px 20px; font-size: 14px; font-weight: 500;
+    z-index: 999; transition: transform 0.3s ease; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===========================
+     MISC
+  =========================== */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--blush); border-radius: 2px; }
+
+  .info-card {
+    background: white; border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 10px;
+    box-shadow: var(--shadow); font-size: 13px; color: var(--text);
+    line-height: 1.6;
+  }
+  .info-card strong { color: var(--primary); }
+</style>
+</head>
+<body>
+
+<!-- =====================
+     TOAST
+===================== -->
+<div class="toast" id="toast"></div>
+
+<!-- =====================
+     LOGIN SCREEN
+===================== -->
+<div id="login-screen" class="login-overlay">
+  <div class="login-logo">Get Amazing<br><span>with Nici</span></div>
+  <div class="login-sub">Fitness planner</div>
+  <button class="btn-login" id="btn-login-google">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
+    Přihlásit se přes Google
+  </button>
+</div>
+
+<!-- =====================
+     USER: Calendar Screen
+===================== -->
+<div class="screen" id="screen-user-calendar">
+  <div class="header">
+    <div class="header-inner">
+      <div>
+        <div class="app-title">Get Amazing<span> with Nici</span></div>
+        <div class="app-subtitle" id="user-greeting">Fitness planner</div>
+      </div>
+      <div class="header-right">
+        <button class="btn-header" id="btn-schedule-open">📅 Rozvrh</button>
+        <button class="btn-header" id="btn-user-notif" style="position:relative;">
+          🔔
+          <span class="notif-badge hidden" id="user-notif-badge">0</span>
+        </button>
+        <button class="btn-header" id="btn-logout-user">Odhlásit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-card">
+    <div class="stats-inner">
+      <div class="stats-icon">★</div>
+      <div>
+        <div class="stats-label">Odcvičené tréninky</div>
+        <div class="stats-value" id="user-completed-count">0</div>
+        <div class="stats-sub">celkem splněných dní</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-wrap">
+    <div class="calendar-card">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="user-prev-month">&#8592;</button>
+        <div class="cal-month" id="user-cal-month-label"></div>
+        <button class="cal-nav-btn" id="user-next-month">&#8594;</button>
+      </div>
+      <div class="cal-weekdays">
+        <div class="cal-weekday">Po</div><div class="cal-weekday">Út</div>
+        <div class="cal-weekday">St</div><div class="cal-weekday">Čt</div>
+        <div class="cal-weekday">Pá</div><div class="cal-weekday">So</div>
+        <div class="cal-weekday">Ne</div>
+      </div>
+      <div class="cal-days" id="user-cal-days"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================
+     USER: Day Detail Screen
+===================== -->
+<div class="screen" id="screen-user-day">
+  <div class="day-header">
+    <button class="back-btn" id="user-back-btn">&#8592; Kalendář</button>
+    <div class="day-date" id="user-day-date-title"></div>
+    <div class="day-date-sub" id="user-day-date-sub"></div>
+    <div class="day-actions">
+      <button class="btn-complete" id="user-btn-complete">🎯 Označit jako splněný</button>
+      <div id="user-day-type-badge"></div>
+    </div>
+  </div>
+  <div class="exercises-wrap" id="user-exercises-wrap"></div>
+</div>
+
+<!-- =====================
+     ADMIN: Dashboard Screen
+===================== -->
+<div class="screen" id="screen-admin-dashboard">
+  <div class="admin-header header">
+    <div class="header-inner">
+      <div>
+        <div class="app-title">Get Amazing<span> with Nici</span></div>
+        <div class="admin-role-badge">Správce</div>
+      </div>
+      <div class="header-right">
+        <button class="btn-header" id="btn-admin-notif" style="position:relative;">
+          🔔
+          <span class="notif-badge hidden" id="admin-notif-badge">0</span>
+        </button>
+        <button class="btn-header" id="btn-logout-admin">Odhlásit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-stats-card">
+    <div class="admin-stats-inner">
+      <div class="admin-stats-icon">👥</div>
+      <div>
+        <div class="stats-label">Registrovaní uživatelé</div>
+        <div class="stats-value" id="admin-user-count" style="color:#9B72E8">0</div>
+        <div class="stats-sub">aktivních uživatelů</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-wrap">
+    <div class="section-title">👤 Uživatelé</div>
+    <div id="admin-user-list"></div>
+    <div style="margin-top:16px">
+      <button class="btn-save" onclick="showAddUserModal()" style="background: linear-gradient(135deg, #9B72E8, var(--secondary))">+ Přidat uživatele</button>
+    </div>
+  </div>
+</div>
+
+<!-- =====================
+     ADMIN: User Profile Screen
+===================== -->
+<div class="screen" id="screen-admin-user-profile">
+  <div class="profile-header">
+    <button class="profile-back-btn" id="admin-profile-back">&#8592; Zpět</button>
+    <div class="profile-name" id="admin-profile-name"></div>
+    <div class="profile-email" id="admin-profile-email"></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('calendar')">📅 Kalendář</button>
+    <button class="tab-btn" onclick="switchTab('schedule')">🗂️ Rozvrh</button>
+  </div>
+
+  <div class="tab-content active" id="tab-calendar">
+    <div style="max-width:480px;margin:20px auto 0;padding:0 16px;">
+      <div class="calendar-card">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="admin-prev-month">&#8592;</button>
+          <div class="cal-month" id="admin-cal-month-label"></div>
+          <button class="cal-nav-btn" id="admin-next-month">&#8594;</button>
+        </div>
+        <div class="cal-weekdays">
+          <div class="cal-weekday">Po</div><div class="cal-weekday">Út</div>
+          <div class="cal-weekday">St</div><div class="cal-weekday">Čt</div>
+          <div class="cal-weekday">Pá</div><div class="cal-weekday">So</div>
+          <div class="cal-weekday">Ne</div>
+        </div>
+        <div class="cal-days" id="admin-cal-days"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-schedule">
+    <div style="max-width:480px;margin:20px auto 0;padding:0 16px 80px;">
+      <div class="section-title">Nastavený rozvrh</div>
+      <div class="schedule-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#FF6B6B"></div>Cardio</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#9B72E8"></div>Silovka</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4ECDC4"></div>Lezení</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#95A5A6"></div>Restday</div>
+      </div>
+      <div id="admin-schedule-view"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================
+     ADMIN: Day Detail Screen
+===================== -->
+<div class="screen" id="screen-admin-day">
+  <div class="day-header" style="background: linear-gradient(135deg, #9B72E8 0%, var(--secondary) 100%)">
+    <button class="back-btn" id="admin-day-back">&#8592; Profil uživatele</button>
+    <div class="day-date" id="admin-day-date-title"></div>
+    <div class="day-date-sub" id="admin-day-date-sub"></div>
+    <div class="day-actions">
+      <div id="admin-day-type-badge"></div>
+    </div>
+  </div>
+  <div class="exercises-wrap" id="admin-exercises-wrap"></div>
+  <button class="fab" id="admin-fab" title="Přidat cvik">+</button>
+</div>
+
+<!-- =====================
+     MODAL: Add Exercise (shared)
+===================== -->
+<div class="modal-overlay" id="modal-add-exercise">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ Přidat cvik</div>
+    <div class="form-group">
+      <label class="form-label">Název cviku *</label>
+      <input class="form-input" type="text" id="f-name" placeholder="např. Bench press" list="exercise-suggestions" autocomplete="off">
+      <datalist id="exercise-suggestions"></datalist>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Série *</label>
+        <input class="form-input" type="number" id="f-sets" placeholder="4" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Opakování *</label>
+        <input class="form-input" type="number" id="f-reps" placeholder="10" min="1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Pauza</label>
+        <div class="input-unit-wrap">
+          <input class="form-input" type="text" id="f-rest" placeholder="60">
+          <span class="input-unit">s</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Váha</label>
+        <div class="input-unit-wrap">
+          <input class="form-input" type="number" id="f-weight" placeholder="50" min="0">
+          <span class="input-unit">kg</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Poznámka (nepovinné)</label>
+      <input class="form-input" type="text" id="f-note" placeholder="např. pomalá excentrická fáze">
+    </div>
+    <button class="btn-save" id="btn-save-exercise">Uložit cvik</button>
+  </div>
+</div>
+
+<!-- =====================
+     MODAL: Add User (Admin)
+===================== -->
+<div class="modal-overlay" id="modal-add-user">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">👤 Přidat uživatele</div>
+    <div class="form-group">
+      <label class="form-label">Jméno *</label>
+      <input class="form-input" type="text" id="new-user-name" placeholder="např. Jana Nováková">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email *</label>
+      <input class="form-input" type="email" id="new-user-email" placeholder="jana@example.com">
+    </div>
+    <button class="btn-save" id="btn-save-user" style="background:linear-gradient(135deg,#9B72E8,var(--secondary))">Přidat uživatele</button>
+  </div>
+</div>
+
+<!-- =====================
+     MODAL: Schedule (User)
+===================== -->
+<div class="schedule-modal-overlay" id="modal-schedule">
+  <div class="schedule-modal">
+    <button class="schedule-close" onclick="closeScheduleModal()">✕</button>
+    <div class="schedule-header">📅 Můj rozvrh</div>
+    <div class="schedule-sub">Klikni na den a vyber typ tréninku</div>
+
+    <div class="schedule-cal-nav">
+      <button class="cal-nav-btn" id="sched-prev-month">&#8592;</button>
+      <div class="schedule-month" id="sched-month-label"></div>
+      <button class="cal-nav-btn" id="sched-next-month">&#8594;</button>
+    </div>
+
+    <div class="schedule-type-picker">
+      <div class="type-option selected" data-type="cardio" onclick="selectType('cardio')">🏃 Cardio</div>
+      <div class="type-option" data-type="silova" onclick="selectType('silova')">💪 Silovka</div>
+      <div class="type-option" data-type="lezeni" onclick="selectType('lezeni')">🧗 Lezení</div>
+      <div class="type-option" data-type="restday" onclick="selectType('restday')">😴 Restday</div>
+    </div>
+
+    <div class="schedule-selected-info" id="sched-selected-info">Klikni na den pro přiřazení typu</div>
+
+    <div class="schedule-grid" id="schedule-grid">
+      <div class="schedule-day-name">Po</div><div class="schedule-day-name">Út</div>
+      <div class="schedule-day-name">St</div><div class="schedule-day-name">Čt</div>
+      <div class="schedule-day-name">Pá</div><div class="schedule-day-name">So</div>
+      <div class="schedule-day-name">Ne</div>
+    </div>
+
+    <button class="btn-save-schedule" onclick="saveSchedule()">💾 Uložit rozvrh</button>
+  </div>
+</div>
+
+<!-- =====================
+     NOTIFICATIONS PANEL
+===================== -->
+<div class="notif-panel-overlay" id="notif-panel-overlay" onclick="closeNotifPanel(event)">
+  <div class="notif-panel">
+    <div class="notif-panel-title">
+      🔔 Notifikace
+      <button class="notif-close" onclick="closeNotifPanel(null, true)">✕</button>
+    </div>
+    <div id="notif-list"></div>
+  </div>
+</div>
+
+<script type="module">
+/* ================================================================
+   GET AMAZING WITH NICI — Main Application Script
+
+   ARCHITECTURE:
+   - Firebase Firestore as database
+   - Google Auth — role determined by email
+   - Admin email: n.hi@gmail.com
+   - Any other Google account → User role
+   - Collections: gawn/users, workouts/{userId}, gawn/notifications, gawn/schedules
+================================================================ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  getAuth, signInWithPopup, signOut,
+  GoogleAuthProvider, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDA5fywHFPg81FfjIiQNwnotQl_racWrRE",
+  authDomain: "amazingmaky-44a77.firebaseapp.com",
+  projectId: "amazingmaky-44a77",
+  storageBucket: "amazingmaky-44a77.firebasestorage.app",
+  messagingSenderId: "848808773416",
+  appId: "1:848808773416:web:da3ac37e905e9e52b5321d"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db          = getFirestore(firebaseApp);
+const auth        = getAuth(firebaseApp);
+const provider    = new GoogleAuthProvider();
+
+const ADMIN_EMAIL = 'n.hi@gmail.com';
+
+// ================================================================
+// DB LAYER
+// ================================================================
+const DB = {
+  async getUsers() {
+    const snap = await getDoc(doc(db, 'gawn', 'users'));
+    return snap.exists() ? (snap.data().list || []) : [];
+  },
+  async setUsers(users) {
+    await setDoc(doc(db, 'gawn', 'users'), { list: users });
+  },
+
+  async getUserData(userId) {
+    const snap = await getDoc(doc(db, 'workouts', userId));
+    return snap.exists() ? snap.data() : {};
+  },
+  async setUserData(userId, data) {
+    await setDoc(doc(db, 'workouts', userId), data);
+  },
+  onUserData(userId, callback) {
+    return onSnapshot(doc(db, 'workouts', userId), snap => {
+      callback(snap.exists() ? snap.data() : {});
+    }, err => { console.error('onUserData error:', err); });
+  },
+
+  async getNotifications() {
+    const snap = await getDoc(doc(db, 'gawn', 'notifications'));
+    return snap.exists() ? (snap.data().list || []) : [];
+  },
+  async setNotifications(notifs) {
+    await setDoc(doc(db, 'gawn', 'notifications'), { list: notifs });
+  },
+  async addNotification(notif) {
+    const notifs = await DB.getNotifications();
+    notifs.unshift({ ...notif, id: Date.now(), timestamp: new Date().toISOString(), read: false });
+    await DB.setNotifications(notifs);
+  },
+
+  async getUserSchedule(userId) {
+    const snap = await getDoc(doc(db, 'gawn', 'schedules'));
+    return snap.exists() ? (snap.data()[userId] || {}) : {};
+  },
+  async setUserSchedule(userId, schedule, previousSchedule) {
+    const snap = await getDoc(doc(db, 'gawn', 'schedules'));
+    const all = snap.exists() ? snap.data() : {};
+    all[userId] = schedule;
+    await setDoc(doc(db, 'gawn', 'schedules'), all);
+
+    const users = await DB.getUsers();
+    const user = users.find(u => u.id === userId);
+    const userName = user ? user.name : userId;
+    let changes = [];
+    if (previousSchedule) {
+      Object.keys(schedule).forEach(k => {
+        if (previousSchedule[k] !== schedule[k])
+          changes.push(`${k}: ${previousSchedule[k]||'nic'} → ${schedule[k]}`);
+      });
+      Object.keys(previousSchedule).forEach(k => {
+        if (!schedule[k]) changes.push(`${k}: ${previousSchedule[k]} → nic`);
+      });
+    }
+    const isUpdate = Object.keys(previousSchedule || {}).length > 0;
+    await DB.addNotification({
+      for: 'admin',
+      type: isUpdate ? 'schedule_update' : 'schedule_new',
+      title: isUpdate ? `✏️ ${userName} upravil/a rozvrh` : `📅 ${userName} nastavil/a rozvrh`,
+      body: isUpdate && changes.length > 0
+        ? 'Změny: ' + changes.slice(0,5).join(', ') + (changes.length > 5 ? ` ... (+${changes.length-5})` : '')
+        : 'Nový rozvrh byl nastaven.',
+      userId
+    });
+  }
+};
+
+// ================================================================
+// STATE
+// ================================================================
+let currentRole     = null;
+let currentUserId   = null;
+let currentUser     = null;
+let localData       = {};
+let unsubData       = null;
+
+let viewYear  = new Date().getFullYear();
+let viewMonth = new Date().getMonth();
+let selectedDateKey = null;
+
+let adminViewUserId = null;
+let adminViewYear   = new Date().getFullYear();
+let adminViewMonth  = new Date().getMonth();
+let adminLocalData  = {};
+let unsubAdminData  = null;
+
+let schedViewYear   = new Date().getFullYear();
+let schedViewMonth  = new Date().getMonth();
+let selectedScheduleType = 'cardio';
+let pendingScheduleChanges = {};
+
+const monthNames = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+const dayNames   = ['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'];
+const typeEmojis = { cardio:'🏃', silova:'💪', lezeni:'🧗', restday:'😴' };
+const typeLabels = { cardio:'Cardio', silova:'Silovka', lezeni:'Lezení', restday:'Restday' };
+
+// ================================================================
+// UTILS
+// ================================================================
+function todayKey() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function isFuture(key) { return key > todayKey(); }
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return `${d}. ${monthNames[m-1]} ${y}`;
+}
+
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ================================================================
+// AUTH — Google login, role detected by email
+// ================================================================
+document.getElementById('btn-login-google').onclick = () => {
+  signInWithPopup(auth, provider).catch(e => showToast('Přihlášení selhalo: ' + e.message));
+};
+
+document.getElementById('btn-logout-admin').onclick = () => signOut(auth);
+document.getElementById('btn-logout-user').onclick  = () => signOut(auth);
+
+onAuthStateChanged(auth, async (firebaseUser) => {
+  if (!firebaseUser) {
+    // Logged out — clean up and show login
+    if (unsubData)      { unsubData();      unsubData      = null; }
+    if (unsubAdminData) { unsubAdminData(); unsubAdminData = null; }
+    currentRole = null; currentUserId = null; currentUser = null;
+    localData = {}; adminLocalData = {};
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    return;
+  }
+
+  // Logged in — hide login screen
+  document.getElementById('login-screen').classList.add('hidden');
+
+  const email = firebaseUser.email;
+
+  if (email === ADMIN_EMAIL) {
+    // ── ADMIN role ──
+    currentRole   = 'admin';
+    currentUserId = 'admin';
+    currentUser   = null;
+    renderAdminDashboard();
+    showScreen('screen-admin-dashboard');
+    updateAdminNotifBadge();
+
+  } else {
+    // ── USER role ──
+    currentRole = 'user';
+
+    // Ensure user is registered in the users list
+    const users = await DB.getUsers();
+    let user = users.find(u => u.email === email);
+    if (!user) {
+      user = {
+        id:    firebaseUser.uid,
+        name:  firebaseUser.displayName || email.split('@')[0],
+        email: email
+      };
+      users.push(user);
+      await DB.setUsers(users);
+    }
+    currentUserId = user.id;
+    currentUser   = user;
+
+    document.getElementById('user-greeting').textContent = `Ahoj, ${user.name.split(' ')[0]}! 👋`;
+
+    // Start live sync for this user's data
+    if (unsubData) unsubData();
+    unsubData = DB.onUserData(currentUserId, (data) => {
+      localData = data;
+      if (document.getElementById('screen-user-calendar').classList.contains('active')) {
+        renderUserCalendar();
+      }
+      if (document.getElementById('screen-user-day').classList.contains('active')) {
+        renderUserDayDetail();
+      }
+    });
+
+    showScreen('screen-user-calendar');
+    updateUserNotifBadge();
+  }
+});
+
+// ================================================================
+// CALENDAR RENDER (User)
+// ================================================================
+async function renderUserCalendar() {
+  const data     = localData;
+  const schedule = await DB.getUserSchedule(currentUserId);
+  const today    = todayKey();
+
+  document.getElementById('user-cal-month-label').textContent = `${monthNames[viewMonth]} ${viewYear}`;
+  document.getElementById('user-completed-count').textContent = Object.values(data).filter(d => d.completed).length;
+
+  const daysEl = document.getElementById('user-cal-days');
+  daysEl.innerHTML = '';
+  const first    = new Date(viewYear, viewMonth, 1);
+  const startDow = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+
+  for (let i = 0; i < startDow; i++) {
+    const el = document.createElement('div'); el.className = 'cal-day empty'; daysEl.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key     = dateKey(viewYear, viewMonth, d);
+    const dayData = data[key] || {};
+    const dayType = schedule[key];
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.innerHTML = `<span>${d}</span>`;
+    if (dayType) {
+      const dot = document.createElement('div');
+      dot.className = `day-type-dot ${dayType}`;
+      el.appendChild(dot);
+    }
+    if (key === today)            el.classList.add('today');
+    if (isFuture(key))            el.classList.add('future');
+    if (dayData.completed)        el.classList.add('completed');
+    if (dayData.exercises?.length) el.classList.add('has-workout');
+    el.addEventListener('click', () => openUserDay(key));
+    daysEl.appendChild(el);
+  }
+}
+
+document.getElementById('user-prev-month').addEventListener('click', () => {
+  viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderUserCalendar();
+});
+document.getElementById('user-next-month').addEventListener('click', () => {
+  viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderUserCalendar();
+});
+
+// ================================================================
+// USER DAY DETAIL
+// ================================================================
+function openUserDay(key) {
+  selectedDateKey = key;
+  const [y,m,d] = key.split('-').map(Number);
+  const dateObj  = new Date(y, m-1, d);
+  document.getElementById('user-day-date-title').textContent =
+    `${dayNames[dateObj.getDay()]} ${d}. ${monthNames[m-1]} ${y}`;
+  document.getElementById('user-day-date-sub').textContent =
+    key === todayKey() ? 'Dnes' : isFuture(key) ? 'Plánovaný den' : 'Minulý den';
+  renderUserDayDetail();
+  showScreen('screen-user-day');
+}
+
+async function renderUserDayDetail() {
+  const data     = localData;
+  const schedule = await DB.getUserSchedule(currentUserId);
+  const day      = data[selectedDateKey] || { completed: false, exercises: [] };
+  const dayType  = schedule[selectedDateKey];
+
+  // Type badge
+  const badge = document.getElementById('user-day-type-badge');
+  badge.innerHTML = dayType
+    ? `<div class="day-type-badge ${dayType}">${typeEmojis[dayType]} ${typeLabels[dayType]}</div>`
+    : '';
+
+  // Complete button
+  const btn = document.getElementById('user-btn-complete');
+  if (day.completed) {
+    btn.textContent = 'Splněno ✓'; btn.classList.add('done'); btn.disabled = false;
+    btn.onclick = () => userToggleComplete();
+  } else if (isFuture(selectedDateKey)) {
+    btn.textContent = 'Nelze označit'; btn.classList.remove('done'); btn.disabled = true;
+  } else {
+    btn.textContent = '🎯 Označit jako splněný'; btn.classList.remove('done'); btn.disabled = false;
+    btn.onclick = () => userToggleComplete();
+  }
+
+  // Exercises list
+  const wrap = document.getElementById('user-exercises-wrap');
+  if (!day.exercises || day.exercises.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🏋️</div>
+        <div class="empty-state-title">Zatím žádné cviky</div>
+        <div class="empty-state-sub">Trénink pro tento den přidá tvůj trenér</div>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = day.exercises.map((ex, i) => `
+    <div class="exercise-card">
+      <div class="exercise-name">${esc(ex.name)}</div>
+      <div class="exercise-pills">
+        <div class="pill">💪 ${ex.sets} sérií</div>
+        <div class="pill">🔄 ${ex.reps} opakování</div>
+        ${ex.rest   ? `<div class="pill">⏱ ${esc(ex.rest)} s pauza</div>`  : ''}
+        ${ex.weight ? `<div class="pill">⚖️ ${ex.weight} kg</div>`          : ''}
+      </div>
+      ${ex.note ? `<div class="exercise-note">${esc(ex.note)}</div>` : ''}
+      <div class="feedback-label">Moje zpětná vazba</div>
+      <textarea class="feedback-input" rows="2" placeholder="Jak to šlo? Zapiš pocity, uprav váhu..."
+        onchange="userSaveFeedback(${i}, this.value)">${esc(ex.feedback||'')}</textarea>
+      ${ex.adminReply ? `
+        <div class="admin-reply">
+          <div class="admin-reply-label">💬 Odpověď trenéra</div>
+          <div class="admin-reply-text">${esc(ex.adminReply)}</div>
+        </div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function userToggleComplete() {
+  const data = { ...localData };
+  if (!data[selectedDateKey]) data[selectedDateKey] = { completed: false, exercises: [] };
+  data[selectedDateKey].completed = !data[selectedDateKey].completed;
+  await DB.setUserData(currentUserId, data);
+  showToast(data[selectedDateKey].completed ? '🎉 Trénink splněn! Skvělá práce!' : 'Označení zrušeno');
+}
+
+async function userSaveFeedback(idx, val) {
+  const data = { ...localData };
+  if (!data[selectedDateKey]?.exercises?.[idx]) return;
+  data[selectedDateKey].exercises[idx].feedback = val;
+  await DB.setUserData(currentUserId, data);
+}
+
+document.getElementById('user-back-btn').addEventListener('click', () => {
+  showScreen('screen-user-calendar');
+  renderUserCalendar();
+});
+
+// ================================================================
+// ADMIN DASHBOARD
+// ================================================================
+async function renderAdminDashboard() {
+  const users = await DB.getUsers();
+  document.getElementById('admin-user-count').textContent = users.length;
+  const list = document.getElementById('admin-user-list');
+  if (users.length === 0) {
+    list.innerHTML = `<div class="info-card">Zatím žádní uživatelé. Přidej prvního!</div>`;
+    return;
+  }
+  list.innerHTML = users.map(u => `
+    <div class="user-card" onclick="openUserProfile('${u.id}')">
+      <div class="user-avatar">${esc(u.name.charAt(0))}</div>
+      <div style="flex:1">
+        <div class="user-name">${esc(u.name)}</div>
+        <div class="user-email">${esc(u.email)}</div>
+        <div class="user-meta" id="meta-${u.id}">načítám...</div>
+      </div>
+      <div class="user-card-right">›</div>
+    </div>`).join('');
+
+  users.forEach(async u => {
+    const data = await DB.getUserData(u.id);
+    const completed = Object.values(data).filter(d => d.completed).length;
+    const el = document.getElementById(`meta-${u.id}`);
+    if (el) el.textContent = `✓ ${completed} tréninků splněno`;
+  });
+}
+
+// ================================================================
+// ADD USER MODAL (Admin)
+// ================================================================
+function showAddUserModal() {
+  document.getElementById('new-user-name').value  = '';
+  document.getElementById('new-user-email').value = '';
+  document.getElementById('modal-add-user').classList.add('open');
+}
+
+document.getElementById('btn-save-user').addEventListener('click', async () => {
+  const name  = document.getElementById('new-user-name').value.trim();
+  const email = document.getElementById('new-user-email').value.trim();
+  if (!name || !email) { showToast('Vyplň jméno i email'); return; }
+  const users = await DB.getUsers();
+  if (users.find(u => u.email === email)) { showToast('Uživatel s tímto emailem již existuje'); return; }
+  const newUser = { id: `user_${Date.now()}`, name, email };
+  users.push(newUser);
+  await DB.setUsers(users);
+  document.getElementById('modal-add-user').classList.remove('open');
+  renderAdminDashboard();
+  showToast(`Uživatel ${name} přidán ✓`);
+});
+
+// ================================================================
+// ADMIN: User Profile
+// ================================================================
+async function openUserProfile(userId) {
+  adminViewUserId = userId;
+  adminViewYear   = new Date().getFullYear();
+  adminViewMonth  = new Date().getMonth();
+  const users = await DB.getUsers();
+  const user  = users.find(u => u.id === userId);
+  document.getElementById('admin-profile-name').textContent  = user.name;
+  document.getElementById('admin-profile-email').textContent = user.email;
+
+  // Reset tabs to Calendar
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === 0));
+  document.querySelectorAll('.tab-content').forEach((tc, i) => tc.classList.toggle('active', i === 0));
+  document.getElementById('admin-fab').classList.remove('hidden');
+
+  // Start live listener for this user's workout data
+  if (unsubAdminData) { unsubAdminData(); unsubAdminData = null; }
+  unsubAdminData = DB.onUserData(userId, (data) => {
+    adminLocalData = data;
+    if (document.getElementById('screen-admin-user-profile').classList.contains('active')) {
+      renderAdminCalendar();
+    }
+    if (document.getElementById('screen-admin-day').classList.contains('active')) {
+      renderAdminDayDetail();
+    }
+  });
+
+  renderAdminScheduleView();
+  showScreen('screen-admin-user-profile');
+}
+
+document.getElementById('admin-profile-back').addEventListener('click', () => {
+  if (unsubAdminData) { unsubAdminData(); unsubAdminData = null; }
+  renderAdminDashboard();
+  showScreen('screen-admin-dashboard');
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  const idx = tab === 'calendar' ? 0 : 1;
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  document.querySelectorAll('.tab-content')[idx].classList.add('active');
+  document.getElementById('admin-fab').classList.toggle('hidden', tab !== 'calendar');
+}
+
+// ================================================================
+// ADMIN CALENDAR
+// ================================================================
+async function renderAdminCalendar() {
+  const data     = adminLocalData;
+  const schedule = await DB.getUserSchedule(adminViewUserId);
+  const today    = todayKey();
+  document.getElementById('admin-cal-month-label').textContent = `${monthNames[adminViewMonth]} ${adminViewYear}`;
+
+  const daysEl = document.getElementById('admin-cal-days');
+  daysEl.innerHTML = '';
+  const first    = new Date(adminViewYear, adminViewMonth, 1);
+  const startDow = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(adminViewYear, adminViewMonth+1, 0).getDate();
+
+  for (let i = 0; i < startDow; i++) {
+    const el = document.createElement('div'); el.className = 'cal-day empty'; daysEl.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key     = dateKey(adminViewYear, adminViewMonth, d);
+    const dayData = data[key] || {};
+    const dayType = schedule[key];
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.innerHTML = `<span>${d}</span>`;
+    if (dayType) {
+      const dot = document.createElement('div');
+      dot.className = `day-type-dot ${dayType}`;
+      el.appendChild(dot);
+    }
+    if (key === today)             el.classList.add('today');
+    if (isFuture(key))             el.classList.add('future');
+    if (dayData.completed)         el.classList.add('completed');
+    if (dayData.exercises?.length) el.classList.add('has-workout');
+    el.addEventListener('click', () => openAdminDay(key));
+    daysEl.appendChild(el);
+  }
+}
+
+document.getElementById('admin-prev-month').addEventListener('click', () => {
+  adminViewMonth--; if (adminViewMonth < 0) { adminViewMonth = 11; adminViewYear--; }
+  renderAdminCalendar();
+});
+document.getElementById('admin-next-month').addEventListener('click', () => {
+  adminViewMonth++; if (adminViewMonth > 11) { adminViewMonth = 0; adminViewYear++; }
+  renderAdminCalendar();
+});
+
+// ================================================================
+// ADMIN: Day Detail
+// ================================================================
+async function openAdminDay(key) {
+  selectedDateKey = key;
+  const [y,m,d]  = key.split('-').map(Number);
+  const dateObj   = new Date(y, m-1, d);
+  const schedule  = await DB.getUserSchedule(adminViewUserId);
+  const dayType   = schedule[key];
+
+  document.getElementById('admin-day-date-title').textContent =
+    `${dayNames[dateObj.getDay()]} ${d}. ${monthNames[m-1]} ${y}`;
+  document.getElementById('admin-day-date-sub').textContent =
+    key === todayKey() ? 'Dnes' : isFuture(key) ? 'Plánovaný den' : 'Minulý den';
+  document.getElementById('admin-day-type-badge').innerHTML = dayType
+    ? `<div class="day-type-badge ${dayType}">${typeEmojis[dayType]} ${typeLabels[dayType]}</div>` : '';
+
+  renderAdminDayDetail();
+  showScreen('screen-admin-day');
+}
+
+function renderAdminDayDetail() {
+  const data = adminLocalData;
+  const day  = data[selectedDateKey] || { completed: false, exercises: [] };
+  const wrap = document.getElementById('admin-exercises-wrap');
+
+  if (!day.exercises || day.exercises.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">+</div>
+        <div class="empty-state-title">Žádné cviky</div>
+        <div class="empty-state-sub">Klikni na + pro přidání tréninkového programu</div>
+      </div>`;
+    return;
+  }
+
+  const isCompleted = day.completed;
+  wrap.innerHTML =
+    (isCompleted ? '<div class="info-card" style="margin-bottom:12px">✅ Trénink byl označen jako <strong>splněný</strong></div>' : '') +
+    day.exercises.map((ex, i) => {
+      const hasFeedback = ex.feedback && ex.feedback.trim();
+      return `
+        <div class="exercise-card">
+          <div class="exercise-name">
+            ${esc(ex.name)}
+            <button class="exercise-delete" onclick="adminDeleteExercise(${i})" title="Smazat">✕</button>
+          </div>
+          <div class="exercise-pills">
+            <div class="pill">💪 ${ex.sets} sérií</div>
+            <div class="pill">🔄 ${ex.reps} opakování</div>
+            ${ex.rest   ? `<div class="pill">⏱ ${esc(ex.rest)} s pauza</div>` : ''}
+            ${ex.weight ? `<div class="pill">⚖️ ${ex.weight} kg</div>`         : ''}
+          </div>
+          ${ex.note ? `<div class="exercise-note">${esc(ex.note)}</div>` : ''}
+          ${hasFeedback ? `
+            <div style="margin-bottom:8px">
+              <div class="feedback-label">💬 Zpětná vazba uživatele</div>
+              <div class="exercise-note" style="margin-bottom:0;font-style:normal;">${esc(ex.feedback)}</div>
+            </div>
+            <div class="feedback-label">Tvoje odpověď</div>
+            <textarea class="admin-reply-input" rows="2" placeholder="Napiš odpověď..."
+              id="reply-input-${i}">${esc(ex.adminReply||'')}</textarea>
+            <button class="btn-reply-save" onclick="adminSaveReply(${i})">Uložit odpověď</button>
+          ` : `<div style="font-size:12px;color:var(--text-soft);font-style:italic;">Uživatel zatím nezadal zpětnou vazbu</div>`}
+        </div>`;
+    }).join('');
+}
+
+window.adminDeleteExercise = async function(idx) {
+  const data = { ...adminLocalData };
+  if (!data[selectedDateKey]) return;
+  data[selectedDateKey].exercises.splice(idx, 1);
+  await DB.setUserData(adminViewUserId, data);
+  showToast('Cvik odstraněn');
+};
+
+window.adminSaveReply = async function(idx) {
+  const input = document.getElementById(`reply-input-${idx}`);
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) { showToast('Odpověď je prázdná'); return; }
+  const data = { ...adminLocalData };
+  if (!data[selectedDateKey]?.exercises?.[idx]) return;
+  const prevReply    = data[selectedDateKey].exercises[idx].adminReply;
+  const exName       = data[selectedDateKey].exercises[idx].name;
+  const userFeedback = data[selectedDateKey].exercises[idx].feedback;
+  data[selectedDateKey].exercises[idx].adminReply = val;
+  await DB.setUserData(adminViewUserId, data);
+  if (!prevReply) {
+    await DB.addNotification({
+      for: adminViewUserId,
+      type: 'admin_reply',
+      title: '💬 Trenér odpověděl na tvoji zpětnou vazbu',
+      dateKey: selectedDateKey,
+      exerciseName: exName,
+      userFeedback: userFeedback,
+      adminReply: val
+    });
+  }
+  showToast('Odpověď uložena ✓');
+};
+
+document.getElementById('admin-day-back').addEventListener('click', () => {
+  renderAdminCalendar();
+  showScreen('screen-admin-user-profile');
+});
+
+// ================================================================
+// ADMIN SCHEDULE VIEW (read-only)
+// ================================================================
+async function renderAdminScheduleView() {
+  const schedule    = await DB.getUserSchedule(adminViewUserId);
+  const y = adminViewYear, m = adminViewMonth;
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const first       = new Date(y, m, 1);
+  const startDow    = (first.getDay() + 6) % 7;
+
+  let html = `<div class="schedule-view-card">
+    <div style="font-weight:600;color:var(--text);margin-bottom:10px;">${monthNames[m]} ${y}</div>
+    <div class="schedule-grid" style="gap:3px;">
+      <div class="schedule-day-name">Po</div><div class="schedule-day-name">Út</div>
+      <div class="schedule-day-name">St</div><div class="schedule-day-name">Čt</div>
+      <div class="schedule-day-name">Pá</div><div class="schedule-day-name">So</div>
+      <div class="schedule-day-name">Ne</div>`;
+
+  for (let i = 0; i < startDow; i++) html += `<div class="schedule-day empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(y, m, d);
+    const t   = schedule[key];
+    html += `<div class="schedule-day ${t||''}" style="pointer-events:none;">
+      <span class="day-num">${d}</span>
+      ${t ? `<span class="type-label">${typeLabels[t]?.slice(0,4)}</span>` : ''}
+    </div>`;
+  }
+  html += '</div></div>';
+  document.getElementById('admin-schedule-view').innerHTML = html;
+}
+
+// ================================================================
+// ADD EXERCISE (Admin FAB)
+// ================================================================
+document.getElementById('admin-fab').addEventListener('click', () => {
+  clearExerciseForm();
+  document.getElementById('modal-add-exercise').classList.add('open');
+});
+
+document.getElementById('btn-save-exercise').addEventListener('click', async () => {
+  const name = document.getElementById('f-name').value.trim();
+  const sets = document.getElementById('f-sets').value;
+  const reps = document.getElementById('f-reps').value;
+  if (!name || !sets || !reps) { showToast('Vyplň název, série a opakování'); return; }
+
+  const ex = {
+    name, sets, reps,
+    rest:     document.getElementById('f-rest').value.trim(),
+    weight:   document.getElementById('f-weight').value,
+    note:     document.getElementById('f-note').value.trim(),
+    feedback: '',
+    adminReply: ''
+  };
+
+  const data = { ...adminLocalData };
+  if (!data[selectedDateKey]) data[selectedDateKey] = { completed: false, exercises: [] };
+  data[selectedDateKey].exercises.push(ex);
+  await DB.setUserData(adminViewUserId, data);
+
+  saveExerciseToHistory(name);
+  document.getElementById('modal-add-exercise').classList.remove('open');
+  showToast('Cvik přidán ✓');
+});
+
+function clearExerciseForm() {
+  ['f-name','f-sets','f-reps','f-rest','f-weight','f-note'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  populateExerciseDatalist();
+}
+
+function loadExerciseHistory() {
+  try { return JSON.parse(localStorage.getItem('gawn_exercise_history') || '[]'); } catch { return []; }
+}
+function saveExerciseToHistory(name) {
+  const h = loadExerciseHistory();
+  if (!h.includes(name)) { h.push(name); localStorage.setItem('gawn_exercise_history', JSON.stringify(h)); }
+}
+function populateExerciseDatalist() {
+  const dl = document.getElementById('exercise-suggestions');
+  dl.innerHTML = '';
+  loadExerciseHistory().forEach(name => {
+    const opt = document.createElement('option'); opt.value = name; dl.appendChild(opt);
+  });
+}
+
+// ================================================================
+// SCHEDULE MODAL (User)
+// ================================================================
+async function openScheduleModal() {
+  schedViewYear  = new Date().getFullYear();
+  schedViewMonth = new Date().getMonth();
+  pendingScheduleChanges = { ...(await DB.getUserSchedule(currentUserId)) };
+  renderScheduleGrid();
+  document.getElementById('modal-schedule').classList.add('open');
+}
+
+function closeScheduleModal() {
+  document.getElementById('modal-schedule').classList.remove('open');
+}
+
+function renderScheduleGrid() {
+  document.getElementById('sched-month-label').textContent = `${monthNames[schedViewMonth]} ${schedViewYear}`;
+  const y = schedViewYear, m = schedViewMonth;
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const first    = new Date(y, m, 1);
+  const startDow = (first.getDay() + 6) % 7;
+  const today    = todayKey();
+
+  const grid    = document.getElementById('schedule-grid');
+  const headers = Array.from(grid.children).slice(0, 7);
+  grid.innerHTML = '';
+  headers.forEach(h => grid.appendChild(h));
+
+  for (let i = 0; i < startDow; i++) {
+    const el = document.createElement('div'); el.className = 'schedule-day empty'; grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key  = dateKey(y, m, d);
+    const t    = pendingScheduleChanges[key];
+    const past = key < today;
+    const el   = document.createElement('div');
+    el.className = `schedule-day ${t||''} ${past ? 'past' : ''}`;
+    el.innerHTML = `<span class="day-num">${d}</span>${t ? `<span class="type-label">${typeLabels[t]?.slice(0,4)}</span>` : ''}`;
+    el.addEventListener('click', () => {
+      pendingScheduleChanges[key] = pendingScheduleChanges[key] === selectedScheduleType ? undefined : selectedScheduleType;
+      if (!pendingScheduleChanges[key]) delete pendingScheduleChanges[key];
+      document.getElementById('sched-selected-info').textContent =
+        pendingScheduleChanges[key]
+          ? `${d}. ${monthNames[m]}: ${typeLabels[pendingScheduleChanges[key]]}`
+          : `${d}. ${monthNames[m]}: typ odebrán`;
+      renderScheduleGrid();
+    });
+    grid.appendChild(el);
+  }
+}
+
+function selectType(type) {
+  selectedScheduleType = type;
+  document.querySelectorAll('.type-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.type === type);
+  });
+}
+
+async function saveSchedule() {
+  const prevSchedule = await DB.getUserSchedule(currentUserId);
+  await DB.setUserSchedule(currentUserId, pendingScheduleChanges, prevSchedule);
+  closeScheduleModal();
+  renderUserCalendar();
+  showToast('Rozvrh uložen ✓ Správce byl upozorněn.');
+  updateAdminNotifBadge();
+}
+
+document.getElementById('sched-prev-month').addEventListener('click', () => {
+  schedViewMonth--; if (schedViewMonth < 0) { schedViewMonth = 11; schedViewYear--; }
+  renderScheduleGrid();
+});
+document.getElementById('sched-next-month').addEventListener('click', () => {
+  schedViewMonth++; if (schedViewMonth > 11) { schedViewMonth = 0; schedViewYear++; }
+  renderScheduleGrid();
+});
+
+document.getElementById('btn-schedule-open').addEventListener('click', openScheduleModal);
+
+// ================================================================
+// NOTIFICATIONS
+// ================================================================
+async function getNotificationsFor(target) {
+  const all = await DB.getNotifications();
+  return all.filter(n => n.for === target);
+}
+
+async function updateUserNotifBadge() {
+  const notifs = await getNotificationsFor(currentUserId);
+  const unread = notifs.filter(n => !n.read);
+  const badge  = document.getElementById('user-notif-badge');
+  badge.textContent = unread.length;
+  badge.classList.toggle('hidden', unread.length === 0);
+}
+
+async function updateAdminNotifBadge() {
+  const notifs = await getNotificationsFor('admin');
+  const unread = notifs.filter(n => !n.read);
+  const badge  = document.getElementById('admin-notif-badge');
+  badge.textContent = unread.length;
+  badge.classList.toggle('hidden', unread.length === 0);
+}
+
+async function openNotifPanel(target) {
+  const notifs = await getNotificationsFor(target);
+  const list   = document.getElementById('notif-list');
+  if (notifs.length === 0) {
+    list.innerHTML = '<div class="notif-empty">Žádné notifikace 🎉</div>';
+  } else {
+    list.innerHTML = notifs.map(n => {
+      const unreadClass = n.read ? '' : 'unread';
+      if (n.type === 'admin_reply') {
+        return `
+          <div class="notif-item ${unreadClass}">
+            <div class="notif-rich-header">
+              <strong>${esc(n.title)}</strong>
+              <div class="notif-date">📅 ${formatDate(n.dateKey)} &nbsp;·&nbsp; 🏋️ ${esc(n.exerciseName || '')}</div>
+            </div>
+            ${n.userFeedback ? `
+            <div class="notif-rich-feedback">
+              <div class="label">Tvoje zpětná vazba</div>
+              <div class="value">"${esc(n.userFeedback)}"</div>
+            </div>` : ''}
+            <div class="notif-rich-reply">
+              <div class="label">💬 Odpověď trenéra</div>
+              <div class="value">${esc(n.adminReply || '')}</div>
+            </div>
+            <div class="notif-rich-footer">
+              <div class="notif-date">${new Date(n.timestamp).toLocaleString('cs-CZ')}</div>
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="notif-item simple ${unreadClass}">
+          <strong>${esc(n.title)}</strong><br>
+          ${esc(n.body || '')}
+          <div class="notif-date">${new Date(n.timestamp).toLocaleString('cs-CZ')}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // Mark all as read
+  const all = await DB.getNotifications();
+  all.forEach(n => { if (n.for === target) n.read = true; });
+  await DB.setNotifications(all);
+  if (target === 'admin') updateAdminNotifBadge();
+  else updateUserNotifBadge();
+
+  document.getElementById('notif-panel-overlay').classList.add('open');
+}
+
+function closeNotifPanel(event, force) {
+  if (force || (event && event.target === document.getElementById('notif-panel-overlay'))) {
+    document.getElementById('notif-panel-overlay').classList.remove('open');
+  }
+}
+
+document.getElementById('btn-user-notif').addEventListener('click',  () => openNotifPanel(currentUserId));
+document.getElementById('btn-admin-notif').addEventListener('click', () => openNotifPanel('admin'));
+
+// ================================================================
+// MODAL CLOSE ON BACKDROP CLICK
+// ================================================================
+document.getElementById('modal-add-exercise').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-add-exercise'))
+    document.getElementById('modal-add-exercise').classList.remove('open');
+});
+document.getElementById('modal-add-user').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-add-user'))
+    document.getElementById('modal-add-user').classList.remove('open');
+});
+
+// ================================================================
+// GLOBAL EXPORTS for inline HTML onclick handlers
+// ================================================================
+window.openUserProfile    = openUserProfile;
+window.showAddUserModal   = showAddUserModal;
+window.closeNotifPanel    = closeNotifPanel;
+window.selectType         = selectType;
+window.saveSchedule       = saveSchedule;
+window.closeScheduleModal = closeScheduleModal;
+window.userSaveFeedback   = userSaveFeedback;
+window.switchTab          = switchTab;
+</script>
+</body>
+</html>
