@@ -972,7 +972,7 @@
    ARCHITECTURE:
    - Firebase Firestore as database
    - Google Auth — role determined by email
-   - Admin email: nicole.hajkova1@gmail.com
+   - Admin email: n.hi@gmail.com
    - Any other Google account → User role
    - Collections: gawn/users, workouts/{userId}, gawn/notifications, gawn/schedules
 ================================================================ */
@@ -982,7 +982,7 @@ import {
   getFirestore, doc, getDoc, setDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
-  getAuth, signInWithRedirect, getRedirectResult, signOut,
+  getAuth, signInWithPopup, signOut,
   GoogleAuthProvider, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -1165,21 +1165,11 @@ function showScreen(id) {
 // AUTH — Google login, role detected by email
 // ================================================================
 document.getElementById('btn-login-google').onclick = () => {
-  document.getElementById('btn-login-google').style.opacity = '0.6';
-  document.getElementById('btn-login-google').disabled = true;
-  document.getElementById('login-loading').style.display = 'block';
-  signInWithRedirect(auth, provider);
+  signInWithPopup(auth, provider).catch(e => showToast('Přihlášení selhalo: ' + e.message));
 };
 
 document.getElementById('btn-logout-admin').onclick = () => signOut(auth);
 document.getElementById('btn-logout-user').onclick  = () => signOut(auth);
-
-// Zpracuj výsledek přesměrování po Google přihlášení
-getRedirectResult(auth).catch(e => {
-  if (e.code !== 'auth/no-current-user') {
-    showToast('Chyba přihlášení: ' + e.message);
-  }
-});
 
 onAuthStateChanged(auth, async (firebaseUser) => {
   if (!firebaseUser) {
@@ -1198,7 +1188,9 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   const email = firebaseUser.email;
 
-  if (email === ADMIN_EMAIL) {
+
+
+  if (email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim()) {
     // ── ADMIN role ──
     currentRole   = 'admin';
     currentUserId = 'admin';
