@@ -668,7 +668,6 @@
      TOAST
 ===================== -->
 <div class="toast" id="toast"></div>
-<div id="debug-info" style="display:none;position:fixed;top:0;left:0;right:0;background:#ff0;color:#000;padding:12px;font-size:14px;font-weight:bold;z-index:9999;text-align:center;"></div>
 
 <!-- =====================
      LOGIN SCREEN
@@ -1154,7 +1153,7 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => t.classList.remove('show'), 10000);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 function showScreen(id) {
@@ -1199,12 +1198,9 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   const email = firebaseUser.email;
 
-  // DEBUG: zobraz email viditelně
-  showToast('Email: ' + email + ' | Admin: ' + ADMIN_EMAIL);
-  document.getElementById('debug-info').textContent = 'Přihlášený email: ' + email;
-  document.getElementById('debug-info').style.display = 'block';
 
-  if (email === ADMIN_EMAIL) {
+
+  if (email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim()) {
     // ── ADMIN role ──
     currentRole   = 'admin';
     currentUserId = 'admin';
@@ -1929,5 +1925,3 @@ window.switchTab          = switchTab;
 </script>
 </body>
 </html>
-
-  
