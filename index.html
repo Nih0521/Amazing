@@ -972,7 +972,7 @@
    ARCHITECTURE:
    - Firebase Firestore as database
    - Google Auth — role determined by email
-   - Admin email: nicole.hajkova1@gmail.com
+   - Admin email: n.hi@gmail.com
    - Any other Google account → User role
    - Collections: gawn/users, workouts/{userId}, gawn/notifications, gawn/schedules
 ================================================================ */
@@ -1197,6 +1197,9 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   document.getElementById('login-screen').classList.add('hidden');
 
   const email = firebaseUser.email;
+
+  // DEBUG: zobraz email v toastu — smaž po ověření
+  showToast('Přihlášen/a: ' + email);
 
   if (email === ADMIN_EMAIL) {
     // ── ADMIN role ──
