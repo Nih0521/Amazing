@@ -679,6 +679,7 @@
     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
     Přihlásit se přes Google
   </button>
+  <div id="login-loading" style="display:none; font-size:13px; color:var(--text-soft);">⏳ Přihlašuji, čekejte prosím...</div>
 </div>
 
 <!-- =====================
@@ -971,7 +972,7 @@
    ARCHITECTURE:
    - Firebase Firestore as database
    - Google Auth — role determined by email
-   - Admin email: nicole.hajkova1@gmail.com
+   - Admin email: n.hi@gmail.com
    - Any other Google account → User role
    - Collections: gawn/users, workouts/{userId}, gawn/notifications, gawn/schedules
 ================================================================ */
@@ -981,10 +982,33 @@ import {
   getFirestore, doc, getDoc, setDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
-  getAuth, signInWithPopup, signOut,
+  getAuth, signInWithRedirect, getRedirectResult, signOut,
   GoogleAuthProvider, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+/* ================================================================
+   FIRESTORE RULES — nastav toto v Firebase Console → Firestore → Rules:
+
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /gawn/{document} {
+         allow read, write: if request.auth != null
+           && request.auth.token.email in [
+             "nicole.hajkova1@gmail.com",
+             "maka069@seznam.cz",
+             "motlovamarketa4@gmail.com",
+             "n.hildebrantova@gmail.com"
+           ];
+       }
+       match /workouts/{userId} {
+         allow read, write: if request.auth != null
+           && (request.auth.uid == userId
+             || request.auth.token.email == "nicole.hajkova1@gmail.com");
+       }
+     }
+   }
+================================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyDA5fywHFPg81FfjIiQNwnotQl_racWrRE",
   authDomain: "amazingmaky-44a77.firebaseapp.com",
@@ -999,7 +1023,7 @@ const db          = getFirestore(firebaseApp);
 const auth        = getAuth(firebaseApp);
 const provider    = new GoogleAuthProvider();
 
-const ADMIN_EMAIL = 'nicole.hajkov1@gmail.com';
+const ADMIN_EMAIL = 'nicole.hajkova1@gmail.com';
 
 // ================================================================
 // DB LAYER
@@ -1141,11 +1165,21 @@ function showScreen(id) {
 // AUTH — Google login, role detected by email
 // ================================================================
 document.getElementById('btn-login-google').onclick = () => {
-  signInWithPopup(auth, provider).catch(e => showToast('Přihlášení selhalo: ' + e.message));
+  document.getElementById('btn-login-google').style.opacity = '0.6';
+  document.getElementById('btn-login-google').disabled = true;
+  document.getElementById('login-loading').style.display = 'block';
+  signInWithRedirect(auth, provider);
 };
 
 document.getElementById('btn-logout-admin').onclick = () => signOut(auth);
 document.getElementById('btn-logout-user').onclick  = () => signOut(auth);
+
+// Zpracuj výsledek přesměrování po Google přihlášení
+getRedirectResult(auth).catch(e => {
+  if (e.code !== 'auth/no-current-user') {
+    showToast('Chyba přihlášení: ' + e.message);
+  }
+});
 
 onAuthStateChanged(auth, async (firebaseUser) => {
   if (!firebaseUser) {
@@ -1175,26 +1209,21 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   } else {
     // ── USER role ──
-    currentRole = 'user';
+    currentRole   = 'user';
+    currentUserId = firebaseUser.uid;
+    currentUser   = {
+      id:    firebaseUser.uid,
+      name:  firebaseUser.displayName || email.split('@')[0],
+      email: email
+    };
 
-    // Ensure user is registered in the users list
-    const users = await DB.getUsers();
-    let user = users.find(u => u.email === email);
-    if (!user) {
-      user = {
-        id:    firebaseUser.uid,
-        name:  firebaseUser.displayName || email.split('@')[0],
-        email: email
-      };
-      users.push(user);
-      await DB.setUsers(users);
-    }
-    currentUserId = user.id;
-    currentUser   = user;
+    // Ukaž screen IHNED — nečekej na Firestore
+    document.getElementById('user-greeting').textContent =
+      `Ahoj, ${currentUser.name.split(' ')[0]}! 👋`;
+    showScreen('screen-user-calendar');
+    renderUserCalendar();
 
-    document.getElementById('user-greeting').textContent = `Ahoj, ${user.name.split(' ')[0]}! 👋`;
-
-    // Start live sync for this user's data
+    // Spusť live sync dat (kalendář se překreslí automaticky při příchodu dat)
     if (unsubData) unsubData();
     unsubData = DB.onUserData(currentUserId, (data) => {
       localData = data;
@@ -1206,10 +1235,23 @@ onAuthStateChanged(auth, async (firebaseUser) => {
       }
     });
 
-    showScreen('screen-user-calendar');
+    // Zaregistruj uživatele v DB na pozadí (neblokuje UI)
+    (async () => {
+      try {
+        const users = await DB.getUsers();
+        if (!users.find(u => u.email === email)) {
+          users.push(currentUser);
+          await DB.setUsers(users);
+        }
+      } catch(e) {
+        console.warn('Registrace v DB selhala (zkontroluj Firestore Rules):', e.message);
+      }
+    })();
+
     updateUserNotifBadge();
   }
 });
+
 
 // ================================================================
 // CALENDAR RENDER (User)
