@@ -635,6 +635,21 @@
   }
 
   /* ===========================
+     ADMIN COMPLETE BUTTON (purple variant)
+  =========================== */
+  .btn-complete-admin {
+    background: white; color: #7A3E6D; border: none;
+    border-radius: 12px; padding: 10px 18px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-complete-admin:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .btn-complete-admin.done {
+    background: rgba(255,255,255,0.25); color: white;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+
+  /* ===========================
      TOAST
   =========================== */
   .toast {
@@ -845,6 +860,7 @@
     <div class="day-date" id="admin-day-date-title"></div>
     <div class="day-date-sub" id="admin-day-date-sub"></div>
     <div class="day-actions">
+      <!-- ★ NEW: Admin complete toggle button -->
       <button class="btn-complete-admin" id="admin-btn-complete">🎯 Označit jako splněný</button>
       <div id="admin-day-type-badge"></div>
     </div>
@@ -969,13 +985,6 @@
 <script type="module">
 /* ================================================================
    GET AMAZING WITH NICI — Main Application Script
-
-   ARCHITECTURE:
-   - Firebase Firestore as database
-   - Google Auth — role determined by email
-   - Admin email: n.hi@gmail.com
-   - Any other Google account → User role
-   - Collections: gawn/users, workouts/{userId}, gawn/notifications, gawn/schedules
 ================================================================ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -987,29 +996,6 @@ import {
   GoogleAuthProvider, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-/* ================================================================
-   FIRESTORE RULES — nastav toto v Firebase Console → Firestore → Rules:
-
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /gawn/{document} {
-         allow read, write: if request.auth != null
-           && request.auth.token.email in [
-             "nicole.hajkova1@gmail.com",
-             "maka069@seznam.cz",
-             "motlovamarketa4@gmail.com",
-             "n.hildebrantova@gmail.com"
-           ];
-       }
-       match /workouts/{userId} {
-         allow read, write: if request.auth != null
-           && (request.auth.uid == userId
-             || request.auth.token.email == "nicole.hajkova1@gmail.com");
-       }
-     }
-   }
-================================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyDA5fywHFPg81FfjIiQNwnotQl_racWrRE",
   authDomain: "amazingmaky-44a77.firebaseapp.com",
@@ -1163,7 +1149,7 @@ function showScreen(id) {
 }
 
 // ================================================================
-// AUTH — Google login, role detected by email
+// AUTH
 // ================================================================
 document.getElementById('btn-login-google').onclick = () => {
   signInWithPopup(auth, provider).catch(e => showToast('Přihlášení selhalo: ' + e.message));
@@ -1174,7 +1160,6 @@ document.getElementById('btn-logout-user').onclick  = () => signOut(auth);
 
 onAuthStateChanged(auth, async (firebaseUser) => {
   if (!firebaseUser) {
-    // Logged out — clean up and show login
     if (unsubData)      { unsubData();      unsubData      = null; }
     if (unsubAdminData) { unsubAdminData(); unsubAdminData = null; }
     currentRole = null; currentUserId = null; currentUser = null;
@@ -1184,15 +1169,10 @@ onAuthStateChanged(auth, async (firebaseUser) => {
     return;
   }
 
-  // Logged in — hide login screen
   document.getElementById('login-screen').classList.add('hidden');
-
   const email = firebaseUser.email;
 
-
-
   if (email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim()) {
-    // ── ADMIN role ──
     currentRole   = 'admin';
     currentUserId = 'admin';
     currentUser   = null;
@@ -1201,7 +1181,6 @@ onAuthStateChanged(auth, async (firebaseUser) => {
     updateAdminNotifBadge();
 
   } else {
-    // ── USER role ──
     currentRole   = 'user';
     currentUserId = firebaseUser.uid;
     currentUser   = {
@@ -1210,13 +1189,11 @@ onAuthStateChanged(auth, async (firebaseUser) => {
       email: email
     };
 
-    // Ukaž screen IHNED — nečekej na Firestore
     document.getElementById('user-greeting').textContent =
       `Ahoj, ${currentUser.name.split(' ')[0]}! 👋`;
     showScreen('screen-user-calendar');
     renderUserCalendar();
 
-    // Spusť live sync dat (kalendář se překreslí automaticky při příchodu dat)
     if (unsubData) unsubData();
     unsubData = DB.onUserData(currentUserId, (data) => {
       localData = data;
@@ -1228,7 +1205,6 @@ onAuthStateChanged(auth, async (firebaseUser) => {
       }
     });
 
-    // Zaregistruj uživatele v DB na pozadí (neblokuje UI)
     (async () => {
       try {
         const users = await DB.getUsers();
@@ -1237,7 +1213,7 @@ onAuthStateChanged(auth, async (firebaseUser) => {
           await DB.setUsers(users);
         }
       } catch(e) {
-        console.warn('Registrace v DB selhala (zkontroluj Firestore Rules):', e.message);
+        console.warn('Registrace v DB selhala:', e.message);
       }
     })();
 
@@ -1317,13 +1293,11 @@ async function renderUserDayDetail() {
   const day      = data[selectedDateKey] || { completed: false, exercises: [] };
   const dayType  = schedule[selectedDateKey];
 
-  // Type badge
   const badge = document.getElementById('user-day-type-badge');
   badge.innerHTML = dayType
     ? `<div class="day-type-badge ${dayType}">${typeEmojis[dayType]} ${typeLabels[dayType]}</div>`
     : '';
 
-  // Complete button
   const btn = document.getElementById('user-btn-complete');
   if (day.completed) {
     btn.textContent = 'Splněno ✓'; btn.classList.add('done'); btn.disabled = false;
@@ -1335,7 +1309,6 @@ async function renderUserDayDetail() {
     btn.onclick = () => userToggleComplete();
   }
 
-  // Exercises list
   const wrap = document.getElementById('user-exercises-wrap');
   if (!day.exercises || day.exercises.length === 0) {
     wrap.innerHTML = `
@@ -1454,12 +1427,10 @@ async function openUserProfile(userId) {
   document.getElementById('admin-profile-name').textContent  = user.name;
   document.getElementById('admin-profile-email').textContent = user.email;
 
-  // Reset tabs to Calendar
   document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === 0));
   document.querySelectorAll('.tab-content').forEach((tc, i) => tc.classList.toggle('active', i === 0));
   document.getElementById('admin-fab').classList.remove('hidden');
 
-  // Start live listener for this user's workout data
   if (unsubAdminData) { unsubAdminData(); unsubAdminData = null; }
   unsubAdminData = DB.onUserData(userId, (data) => {
     adminLocalData = data;
@@ -1564,6 +1535,16 @@ function renderAdminDayDetail() {
   const day  = data[selectedDateKey] || { completed: false, exercises: [] };
   const wrap = document.getElementById('admin-exercises-wrap');
 
+  // ★ Update the admin complete button state
+  const adminCompleteBtn = document.getElementById('admin-btn-complete');
+  if (day.completed) {
+    adminCompleteBtn.textContent = '✅ Splněno (zrušit)';
+    adminCompleteBtn.classList.add('done');
+  } else {
+    adminCompleteBtn.textContent = '🎯 Označit jako splněný';
+    adminCompleteBtn.classList.remove('done');
+  }
+
   if (!day.exercises || day.exercises.length === 0) {
     wrap.innerHTML = `
       <div class="empty-state">
@@ -1605,6 +1586,18 @@ function renderAdminDayDetail() {
         </div>`;
     }).join('');
 }
+
+// ★ NEW: Admin toggle complete handler
+async function adminToggleComplete() {
+  const data = { ...adminLocalData };
+  if (!data[selectedDateKey]) data[selectedDateKey] = { completed: false, exercises: [] };
+  const newState = !data[selectedDateKey].completed;
+  data[selectedDateKey].completed = newState;
+  await DB.setUserData(adminViewUserId, data);
+  showToast(newState ? '✅ Trénink označen jako splněný' : 'Označení splnění zrušeno');
+}
+
+document.getElementById('admin-btn-complete').addEventListener('click', adminToggleComplete);
 
 window.adminDeleteExercise = async function(idx) {
   const data = { ...adminLocalData };
@@ -1871,7 +1864,6 @@ async function openNotifPanel(target) {
     }).join('');
   }
 
-  // Mark all as read
   const all = await DB.getNotifications();
   all.forEach(n => { if (n.for === target) n.read = true; });
   await DB.setNotifications(all);
@@ -1903,7 +1895,7 @@ document.getElementById('modal-add-user').addEventListener('click', e => {
 });
 
 // ================================================================
-// GLOBAL EXPORTS for inline HTML onclick handlers
+// GLOBAL EXPORTS
 // ================================================================
 window.openUserProfile    = openUserProfile;
 window.showAddUserModal   = showAddUserModal;
